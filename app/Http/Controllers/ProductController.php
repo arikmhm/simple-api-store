@@ -9,20 +9,25 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
 
-class ProductController extends Controller implements HasMiddleware
+class ProductController extends Controller
 {
-    public static function middleware(){
-        return [
-            new Middleware(
-                'auth:sanctum', 
-                except: ['index', 'show']
-            ),
-        ];
-    }
+    // protected $middleware = [
+    //     'auth:sanctum' => [
+    //         'except' => ['index', 'show'],
+    //     ],
+    //     'admin' => [
+    //         'only' => ['store', 'update', 'destroy'],
+    //     ],
+    // ];
     public function index()
     {
-        return Product::all();
+        $products = Product::all();
+        return response()->json([
+            'message' => 'Product list fetched successfully',
+            'products' => $products,
+        ]);
     }
+
 
     public function store(Request $request)
     {
@@ -39,12 +44,9 @@ class ProductController extends Controller implements HasMiddleware
         }
 
         $product = Product::create($validate);
-        $product->refresh();
-
         return response()->json([
             'message' => 'Product created successfully',
-            'product' => $product,                         
-            'image_url' => $product->full_image_url,       
+            'product' => $product,
         ], 201);
     }
 
@@ -52,10 +54,11 @@ class ProductController extends Controller implements HasMiddleware
     public function show(Product $product)
     {
         return response()->json([
-            'product' => $product,                         
-            'image_url' => $product->full_image_url,       
+            'message' => 'Product fetched successfully',
+            'product' => $product,
         ]);
     }
+
 
 
     public function update(Request $request, Product $product)
@@ -68,30 +71,33 @@ class ProductController extends Controller implements HasMiddleware
         ]);
 
         if ($request->hasFile('image_url')) {
+            if ($product->image_url) {
+                Storage::disk('public')->delete($product->image_url);
+            }
+
             $image = $request->file('image_url');
-            $fileName = $image->hashName(); // unik
-            $image->storeAs('products', $fileName, 'public'); // simpan ke folder products
-            $validate['image_url'] = 'products/' . $fileName; // simpan path saja
+            $fileName = $image->hashName();
+            $imagePath = 'products/' . $fileName;
+            $image->storeAs('products', $fileName, 'public');
+            $validate['image_url'] = $imagePath;
         }
 
-
         $product->update($validate);
-
         return response()->json([
             'message' => 'Product updated successfully',
             'product' => $product,
-            'image_url' => $product->full_image_url,
         ]);
     }
+
     public function destroy(Product $product)
     {
-        $product->delete();
         if ($product->image_url) {
             Storage::disk('public')->delete($product->image_url);
         }
-
+        $product->delete();
         return response()->json([
             'message' => 'Product deleted successfully',
         ]);
     }
+
 }

@@ -36,10 +36,8 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Find the user by email
         $user = User::where('email', $request->email)->first();
-
-        // If user not found or password does not match, return error
+        
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }

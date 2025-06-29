@@ -17,11 +17,13 @@ class Order extends Model
         'status',
     ];
 
+    // Relasi dengan User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // Relasi dengan Product
     public function product()
     {
         return $this->belongsTo(Product::class);
