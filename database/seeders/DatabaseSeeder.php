@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -21,7 +23,7 @@ class DatabaseSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         // Kosongkan tabel users (dan products, orders jika Anda punya seeder untuk itu dan ingin truncate juga)
-        User::truncate();
+        // User::truncate();
         // Pastikan Anda juga mengosongkan tabel orders dan products SEBELUM users
         // karena orders dan products memiliki foreign key ke users.
         // Urutan TRUNCATE harus kebalikan dari urutan CREATE TABLE.
@@ -29,9 +31,9 @@ class DatabaseSeeder extends Seeder
 
         // Jika Anda ingin membersihkan semua tabel setiap kali seed:
         // Hapus data dari tabel yang memiliki foreign key terlebih dahulu
-        \App\Models\Order::truncate();
-        \App\Models\Product::truncate();
-        \App\Models\User::truncate(); // Ini akan menjadi aman sekarang
+        Order::truncate();
+        Product::truncate();
+        User::truncate(); // Ini akan menjadi aman sekarang
 
         // Aktifkan kembali pengecekan foreign key constraint
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
